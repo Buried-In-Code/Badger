@@ -26,7 +26,7 @@ TASKS: list[Task] = [
     Task(id="task_005", name="Task 5: Cleanup", description="Cleanup temporary files"),
 ]
 
-APP_NAME = "Task Automation Manager"
+APP_NAME = "Badger"
 
 
 def execute_tasks(
