@@ -7,16 +7,14 @@ dev = [
   "mdformat >= 1.0.0",
   "mdformat-gfm >= 1.0.0",
   "mdformat-ruff >= 0.1.0",
-  "prek >= 0.3.0",
+  "prek >= 0.4.0",
   "ruff >= 0.15.0",
   "toml-sort >= 0.24.0",
-  "ty >= 0.0.30",
+  "ty >= 0.0.50",
 ]
 tests = [
-  "pytest >= 9.0.0",
+  "pytest >= 9.1.0",
   "pytest-cov >= 7.1.0",
-  "tox >= 4.53.0",
-  "tox-uv >= 1.35.0",
 ]
 
 [project]
@@ -119,17 +117,6 @@ keep-runtime-typing = true
 all = true
 ignore_case = true
 trailing_comma_inline_array = true
-overrides."tool.tox.env_list".inline_arrays = false
-overrides."tool.tox.testenv.commands".inline_arrays = false
-
-[tool.tox]
-env_list = ["3.13", "3.14"]
-min_version = "4.22"
-
-[tool.tox.env_run_base]
-commands = [["pytest"]]
-dependency_groups = ["tests"]
-passenv = []
 
 [tool.ty.src]
 exclude = ["**/tests/"]
