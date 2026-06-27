@@ -5,10 +5,10 @@ import subprocess
 from collections.abc import Callable
 from pathlib import Path, WindowsPath
 
-from badger.severity import Severity
+from badger.core.log import Level
 
 
-def launch_chrome(display: Callable[[str, Severity], None], port: int = 9222) -> dict:
+def launch_chrome(log_message: Callable[[str, Level], None], port: int = 9222) -> dict:
     if platform.system() == "Windows":
         chrome_path = (
             WindowsPath("c:/")
@@ -29,7 +29,7 @@ def launch_chrome(display: Callable[[str, Severity], None], port: int = 9222) ->
         return {"running": False, "message": f"Unsupported platform: {platform.system()}"}
 
     try:
-        display("Starting Chrome with CDP...", Severity.DEBUG)
+        log_message("Starting Chrome with CDP...", Level.DEBUG)
         subprocess.Popen(cmd)  # noqa: S603
         return {"running": True, "message": "Chrome launched successfully"}
     except FileNotFoundError as err:

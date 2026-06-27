@@ -81,6 +81,7 @@ ignore = [
   "EM",
   "FBT",
   "FIX",
+  "PLW2901",
   "T201",
   "TCH",
   "TD",

@@ -1,13 +1,12 @@
 import threading
 import tkinter as tk
-from datetime import datetime
 from enum import Enum, auto
 from queue import Queue
 from tkinter import ttk
 
 from badger.core.browser import launch_chrome
+from badger.core.log import Level, Log, add_log, read_logs
 from badger.core.tasks import APP_NAME, TASKS, Task, execute_tasks
-from badger.severity import Severity
 
 
 class State(Enum):
@@ -23,7 +22,7 @@ class BadgerUI:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.state = State.IDLE
-        self.log_queue = Queue()
+        self.log_queue: Queue[Log] = Queue()
 
         self._setup_window()
         self._build_ui()
@@ -80,14 +79,27 @@ class BadgerUI:
         )
         self.port_entry.pack(side=tk.LEFT)
 
+        ttk.Separator(self._advanced_frame, orient=tk.VERTICAL).pack(
+            side=tk.LEFT, fill=tk.Y, padx=12, pady=2
+        )
+
+        self.show_debug_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            self._advanced_frame,
+            text="Show debug output",
+            variable=self.show_debug_var,
+            command=self._on_toggle_debug,
+        ).pack(side=tk.LEFT)
+
     def _toggle_advanced(self) -> None:
         self._advanced_open = not self._advanced_open
         if self._advanced_open:
             self._advanced_frame.pack(fill=tk.X, padx=6, pady=(0, 6))
-            self.adv_btn.configure(text="Advanced")
         else:
             self._advanced_frame.pack_forget()
-            self.adv_btn.configure(text="Advanced")
+
+    def _on_toggle_debug(self) -> None:
+        self.log_text.tag_configure(Level.DEBUG.value, elide=not self.show_debug_var.get())
 
     def _build_task_section(self, parent: tk.Widget) -> None:
         frame = ttk.LabelFrame(parent, text="Step 2  -  Choose Tasks")
@@ -153,9 +165,10 @@ class BadgerUI:
         self.log_text.configure(yscrollcommand=scrollbar.set)
 
         self.log_text.tag_configure("ts", foreground="#555555")
-        self.log_text.tag_configure("INFO", foreground="#9cdcfe")
-        self.log_text.tag_configure("WARN", foreground="#dcdcaa")
-        self.log_text.tag_configure("ERROR", foreground="#f44747")
+        self.log_text.tag_configure(Level.DEBUG.value, foreground="#888888", elide=True)
+        self.log_text.tag_configure(Level.INFO.value, foreground="#9cdcfe")
+        self.log_text.tag_configure(Level.WARN.value, foreground="#dcdcaa")
+        self.log_text.tag_configure(Level.ERROR.value, foreground="#f44747")
 
         self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -194,40 +207,45 @@ class BadgerUI:
             text={State.RUNNING: "Running", State.COMPLETE: "Complete"}.get(self.state, "")
         )
 
-    def _log(self, step: str, message: str, severity: Severity = Severity.INFO) -> None:
-        ts = datetime.now().strftime("%H:%M:%S")
+    def _log(self, log: Log) -> None:
+        tag = log.level.value
         self.log_text.configure(state=tk.NORMAL)
-        self.log_text.insert(tk.END, f"[{ts}] ", "ts")
-        self.log_text.insert(tk.END, f"[{severity:<5}] [{step}] {message}\n", str(severity))
+        self.log_text.insert(tk.END, f"[{log.timestamp.isoformat()}] ", ("ts", tag))
+        self.log_text.insert(tk.END, f"[{tag:<5}] {log.message}\n", tag)
         self.log_text.see(tk.END)
         self.log_text.configure(state=tk.DISABLED)
 
+    def _queue_log(self, step: str, message: str, level: Level = Level.INFO) -> None:
+        log = Log(level=level, message=f"[{step}] {message}")
+        add_log(log)
+        self.log_queue.put(log)
+
     def _process_log_queue(self) -> None:
         while not self.log_queue.empty():
-            self._log(*self.log_queue.get_nowait())
+            self._log(self.log_queue.get_nowait())
         self.root.after(100, self._process_log_queue)
 
     def _on_launch_browser(self) -> None:
         self.state = State.BROWSER_LAUNCHING
         self._update_ui()
         port = self.port_var.get()
-        self._log("BROWSER", f"Opening Chrome on port {port}")
+        self._queue_log("BROWSER", f"Opening Chrome on port {port}")
         threading.Thread(target=self._launch_browser_thread, args=(port,), daemon=True).start()
 
     def _launch_browser_thread(self, port: int) -> None:
-        def display(msg: str, severity: Severity) -> None:
-            self.log_queue.put(("BROWSER", msg, severity))
+        def log_message(msg: str, level: Level) -> None:
+            self._queue_log("BROWSER", msg, level)
 
-        result = launch_chrome(display=display, port=port)
+        result = launch_chrome(log_message=log_message, port=port)
         success = result.get("running", False)
         self.state = State.BROWSER_READY if success else State.BROWSER_ERROR
         self.root.after(0, self._on_browser_ready, success)
 
     def _on_browser_ready(self, success: bool = True) -> None:
         if success:
-            self._log("BROWSER", "Chrome is ready.")
+            self._queue_log("BROWSER", "Chrome is ready.")
         else:
-            self._log("BROWSER", "Chrome failed to launch.", Severity.ERROR)
+            self._queue_log("BROWSER", "Chrome failed to launch.", Level.ERROR)
         self._update_ui()
 
     def _on_select_all(self) -> None:
@@ -246,21 +264,21 @@ class BadgerUI:
             return
         self.state = State.RUNNING
         self._update_ui()
-        self._log("RUN", f"Starting {len(selected)} task(s)")
+        self._queue_log("RUN", f"Starting {len(selected)} task(s)")
         threading.Thread(target=self._run_tasks, args=(selected,), daemon=True).start()
 
     def _run_tasks(self, selected: list[Task]) -> None:
         def progress(msg: str) -> None:
-            self.log_queue.put(("RUN", msg))
+            self._queue_log("RUN", msg)
 
         try:
             execute_tasks(
                 selected, on_progress=progress, is_cancelled=lambda: self.state is not State.RUNNING
             )
             if self.state is State.RUNNING:
-                self.log_queue.put(("RUN", "All tasks finished."))
+                self._queue_log("RUN", "All tasks finished.")
         except Exception as exc:  # noqa: BLE001
-            self.log_queue.put(("RUN", f"Unexpected error: {exc}", Severity.ERROR))
+            self._queue_log("RUN", f"Unexpected error: {exc}", Level.ERROR)
         finally:
             self.root.after(0, self._on_run_complete)
 
@@ -271,13 +289,15 @@ class BadgerUI:
 
     def _on_stop(self) -> None:
         self.state = State.COMPLETE
-        self._log("RUN", "Stopped by user.", Severity.WARN)
+        self._queue_log("RUN", "Stopped by user.", Level.WARN)
         self._update_ui()
 
 
 def main() -> None:
     root = tk.Tk()
-    BadgerUI(root)
+    ui = BadgerUI(root)
+    for log in read_logs():
+        ui.log_queue.put(log)
     root.mainloop()
 
 
