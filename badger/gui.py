@@ -16,79 +16,101 @@ class State(Enum):
     BROWSER_READY = auto()
     RUNNING = auto()
     COMPLETE = auto()
-
-    def __str__(self) -> str:
-        return self.name
+    BROWSER_ERROR = auto()
 
 
 class BadgerUI:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.state = State.IDLE
-        self.browser_running = False
-        self.running = False
-        self.log_queue: Queue = Queue()
+        self.log_queue = Queue()
 
         self._setup_window()
-
-        self._build_browser_control(self.root)
-
-        middle = ttk.Frame(self.root)
-        middle.pack(fill=tk.BOTH, expand=True, padx=5, pady=(5, 0))
-        middle.pack_propagate(False)
-
-        left = ttk.Frame(middle)
-        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 2))
-        self._build_task_selection(left)
-
-        right = ttk.Frame(middle)
-        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(2, 0))
-        self._build_output_log(right)
-
-        self._build_run_control(self.root)
-
+        self._build_ui()
         self._update_ui()
-
         self.root.after(100, self._process_log_queue)
 
     def _setup_window(self) -> None:
         self.root.title(APP_NAME)
-        self.root.geometry("1000x500")
-        self.root.minsize(1000, 500)
+        self.root.geometry("900x540")
+        self.root.minsize(800, 480)
 
-    def _build_browser_control(self, parent: tk.Widget) -> None:
-        frame = tk.LabelFrame(parent, text="Browser Control", padx=5, pady=5)
-        frame.pack(fill=tk.X, padx=5, pady=(5, 0))
+    def _build_ui(self) -> None:
+        main = ttk.Frame(self.root, padding=8)
+        main.pack(fill=tk.BOTH, expand=True)
 
-        self.launch_btn = tk.Button(
-            frame, text="Open Browser (Chrome)", command=self._on_launch_browser
-        )
-        self.launch_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self._build_browser_section(main)
 
-        tk.Label(frame, text="Port:").pack(side=tk.LEFT, padx=(10, 2))
+        middle = ttk.Frame(main)
+        middle.pack(fill=tk.BOTH, expand=True, pady=(8, 0))
+
+        left = ttk.Frame(middle)
+        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 4))
+        self._build_task_section(left)
+
+        right = ttk.Frame(middle)
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(4, 0))
+        self._build_log_section(right)
+
+        self._build_run_section(main)
+
+    def _build_browser_section(self, parent: tk.Widget) -> None:
+        frame = ttk.LabelFrame(parent, text="Step 1  ·  Open Browser")
+        frame.pack(fill=tk.X)
+
+        row = ttk.Frame(frame)
+        row.pack(fill=tk.X, padx=6, pady=6)
+
+        self.launch_btn = ttk.Button(row, text="Open Chrome", command=self._on_launch_browser)
+        self.launch_btn.pack(side=tk.LEFT, padx=(0, 16))
+
+        self.browser_status_lbl = ttk.Label(row, text="● Not running")
+        self.browser_status_lbl.pack(side=tk.LEFT)
+
+        self.adv_btn = ttk.Button(row, text="Advanced ▾", command=self._toggle_advanced)
+        self.adv_btn.pack(side=tk.RIGHT)
+
+        self._advanced_open = False
+        self._advanced_frame = ttk.Frame(frame)
+
+        ttk.Label(self._advanced_frame, text="Debug port:").pack(side=tk.LEFT, padx=(6, 4))
         self.port_var = tk.IntVar(value=9222)
         self.port_entry = ttk.Spinbox(
-            frame, from_=1024, to=65535, textvariable=self.port_var, width=7
+            self._advanced_frame, from_=1024, to=65535, textvariable=self.port_var, width=7
         )
-        self.port_entry.pack(side=tk.LEFT, padx=(0, 15))
+        self.port_entry.pack(side=tk.LEFT)
+        ttk.Label(
+            self._advanced_frame,
+            text="Only change this if port 9222 is already in use.",
+            foreground="grey",
+        ).pack(side=tk.LEFT, padx=8)
 
-        self.browser_status = tk.Label(frame, text="Chrome: Not running")
-        self.browser_status.pack(side=tk.LEFT, padx=15, pady=5)
+    def _toggle_advanced(self) -> None:
+        self._advanced_open = not self._advanced_open
+        if self._advanced_open:
+            self._advanced_frame.pack(fill=tk.X, padx=6, pady=(0, 6))
+            self.adv_btn.configure(text="Advanced ▴")
+        else:
+            self._advanced_frame.pack_forget()
+            self.adv_btn.configure(text="Advanced ▾")
 
-    def _build_task_selection(self, parent: tk.Widget) -> None:
-        frame = tk.LabelFrame(parent, text="Select Tasks to Run", padx=5, pady=5)
+    def _build_task_section(self, parent: tk.Widget) -> None:
+        frame = ttk.LabelFrame(parent, text="Step 2  ·  Choose Tasks")
         frame.pack(fill=tk.BOTH, expand=True)
 
-        btn_row = tk.Frame(frame)
-        btn_row.pack(fill=tk.X, pady=(0, 5))
-        self.select_all_btn = tk.Button(btn_row, text="Select All", command=self._on_select_all)
-        self.select_all_btn.pack(side=tk.RIGHT, padx=2)
-        self.clear_all_btn = tk.Button(btn_row, text="Clear All", command=self._on_clear_all)
-        self.clear_all_btn.pack(side=tk.RIGHT, padx=2)
+        btn_row = ttk.Frame(frame)
+        btn_row.pack(fill=tk.X, padx=6, pady=(6, 2))
+        self.select_all_btn = ttk.Button(btn_row, text="Select All", command=self._on_select_all)
+        self.select_all_btn.pack(side=tk.LEFT, padx=(0, 4))
+        self.clear_all_btn = ttk.Button(btn_row, text="Clear All", command=self._on_clear_all)
+        self.clear_all_btn.pack(side=tk.LEFT)
 
-        canvas = tk.Canvas(frame, height=200, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
-        scrollable = tk.Frame(canvas)
+        container = ttk.Frame(frame)
+        container.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0, 6))
+
+        canvas = tk.Canvas(container, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=canvas.yview)
+        scrollable = ttk.Frame(canvas)
 
         scrollable.bind("<Configure>", lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=scrollable, anchor="nw")
@@ -100,80 +122,96 @@ class BadgerUI:
             var = tk.BooleanVar()
             self.task_vars.append(var)
             cb = ttk.Checkbutton(scrollable, text=task.name, variable=var, command=self._update_ui)
-            cb.pack(anchor=tk.W, padx=5, pady=2)
+            cb.pack(anchor=tk.W, pady=2)
             self.task_checkbuttons.append(cb)
 
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def _build_run_control(self, parent: tk.Widget) -> None:
-        frame = tk.Frame(parent, bd=1, relief=tk.SUNKEN, padx=5, pady=5)
-        frame.pack(fill=tk.X, padx=5, pady=(0, 5))
+    def _build_run_section(self, parent: tk.Widget) -> None:
+        frame = ttk.LabelFrame(parent, text="Step 3  ·  Run")
+        frame.pack(fill=tk.X, pady=(8, 0))
 
-        center = tk.Frame(frame)
-        center.pack(side=tk.LEFT, expand=True)
+        row = ttk.Frame(frame)
+        row.pack(fill=tk.X, padx=6, pady=6)
 
-        self.run_btn = tk.Button(center, text="Start", command=self._on_run)
-        self.run_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.run_btn = ttk.Button(row, text="▶  Start", command=self._on_run)
+        self.run_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        self.stop_btn = tk.Button(center, text="Stop", command=self._on_stop)
-        self.stop_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.stop_btn = ttk.Button(row, text="■  Stop", command=self._on_stop)
+        self.stop_btn.pack(side=tk.LEFT)
 
-        self.run_status = tk.Label(frame, text="Ready")
-        self.run_status.pack(side=tk.RIGHT, padx=15, pady=5)
+        self.run_status_lbl = ttk.Label(row, text="")
+        self.run_status_lbl.pack(side=tk.RIGHT, padx=8)
 
-    def _build_output_log(self, parent: tk.Widget) -> None:
-        frame = tk.LabelFrame(parent, text="Activity Log", padx=5, pady=5)
+    def _build_log_section(self, parent: tk.Widget) -> None:
+        frame = ttk.LabelFrame(parent, text="Activity Log")
         frame.pack(fill=tk.BOTH, expand=True)
 
-        self.output_text = tk.Text(frame, wrap=tk.WORD, state=tk.DISABLED, height=10)
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.output_text.yview)
-        self.output_text.configure(yscrollcommand=scrollbar.set)
-        self.output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        container = ttk.Frame(frame)
+        container.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
+
+        self.log_text = tk.Text(
+            container,
+            wrap=tk.WORD,
+            state=tk.DISABLED,
+            font=("Courier New", 9),
+            bg="#1e1e1e",
+            fg="#cccccc",
+            relief=tk.FLAT,
+        )
+        scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=scrollbar.set)
+
+        self.log_text.tag_configure("ts", foreground="#555555")
+        self.log_text.tag_configure("INFO", foreground="#9cdcfe")
+        self.log_text.tag_configure("WARN", foreground="#dcdcaa")
+        self.log_text.tag_configure("ERROR", foreground="#f44747")
+
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     def _update_ui(self) -> None:
-        is_running = self.state is State.RUNNING
         is_launching = self.state is State.BROWSER_LAUNCHING
+        browser_up = self.state in (State.BROWSER_READY, State.COMPLETE)
+        is_running = self.state is State.RUNNING
         any_selected = any(v.get() for v in self.task_vars)
-        can_run = self.browser_running and any_selected and not is_running
 
-        launch_disabled = self.browser_running or is_launching
-        self.launch_btn.configure(state=tk.DISABLED if launch_disabled else tk.NORMAL)
-        self.port_entry.configure(state=tk.DISABLED if launch_disabled else tk.NORMAL)
+        launch_locked = browser_up or is_launching
+        self.launch_btn.configure(state=tk.DISABLED if launch_locked else tk.NORMAL)
+        self.port_entry.configure(state=tk.DISABLED if launch_locked else tk.NORMAL)
 
-        task_sel_enabled = self.browser_running and not is_launching and not is_running
-        cb_state = tk.NORMAL if task_sel_enabled else tk.DISABLED
+        if browser_up:
+            self.browser_status_lbl.configure(text="● Ready", foreground="#4caf50")
+        elif is_launching:
+            self.browser_status_lbl.configure(text="● Launching…", foreground="#ff9800")
+        elif self.state is State.BROWSER_ERROR:
+            self.browser_status_lbl.configure(text="● Failed — see log", foreground="#f44747")
+        else:
+            self.browser_status_lbl.configure(text="● Not running", foreground="#9e9e9e")
+
+        task_state = tk.NORMAL if (browser_up and not is_running) else tk.DISABLED
         for cb in self.task_checkbuttons:
-            cb.configure(state=cb_state)
-        self.select_all_btn.configure(state=cb_state)
-        self.clear_all_btn.configure(state=cb_state)
+            cb.configure(state=task_state)
+        self.select_all_btn.configure(state=task_state)
+        self.clear_all_btn.configure(state=task_state)
 
         self.run_btn.configure(
-            state=tk.NORMAL if can_run else tk.DISABLED,
-            text="Start" if not is_running else "Running...",
+            state=tk.NORMAL if (browser_up and any_selected and not is_running) else tk.DISABLED,
+            text="▶  Running…" if is_running else "▶  Start",
         )
-
         self.stop_btn.configure(state=tk.NORMAL if is_running else tk.DISABLED)
-
-        if self.browser_running:
-            browser_text = "Chrome: Ready"
-        elif is_launching:
-            browser_text = "Chrome: Launching..."
-        else:
-            browser_text = "Chrome: Not running"
-        self.browser_status.configure(text=browser_text)
-
-        run_text = {State.RUNNING: "Running...", State.COMPLETE: "Complete"}.get(self.state, "")
-        self.run_status.configure(text=run_text)
+        self.run_status_lbl.configure(
+            text={State.RUNNING: "Running…", State.COMPLETE: "✓  Complete"}.get(self.state, "")
+        )
 
     def _log(self, step: str, message: str, severity: Severity = Severity.INFO) -> None:
         ts = datetime.now().strftime("%H:%M:%S")
-        line = f"[{ts}] [{severity:<5}] [{step}] {message}\n"
-        self.output_text.configure(state=tk.NORMAL)
-        self.output_text.insert(tk.END, line)
-        self.output_text.see(tk.END)
-        self.output_text.configure(state=tk.DISABLED)
+        self.log_text.configure(state=tk.NORMAL)
+        self.log_text.insert(tk.END, f"[{ts}] ", "ts")
+        self.log_text.insert(tk.END, f"[{severity:<5}] [{step}] {message}\n", str(severity))
+        self.log_text.see(tk.END)
+        self.log_text.configure(state=tk.DISABLED)
 
     def _process_log_queue(self) -> None:
         while not self.log_queue.empty():
@@ -184,7 +222,7 @@ class BadgerUI:
         self.state = State.BROWSER_LAUNCHING
         self._update_ui()
         port = self.port_var.get()
-        self._log("BROWSER", f"Launching Chrome with remote debugging on port {port}...")
+        self._log("BROWSER", f"Opening Chrome on port {port}…")
         threading.Thread(target=self._launch_browser_thread, args=(port,), daemon=True).start()
 
     def _launch_browser_thread(self, port: int) -> None:
@@ -192,12 +230,15 @@ class BadgerUI:
             self.log_queue.put(("BROWSER", msg, severity))
 
         result = launch_chrome(display=display, port=port)
-        self.browser_running = result["running"]
-        self.state = State.BROWSER_READY
-        self.root.after(0, self._on_browser_ready)
+        success = result.get("running", False)
+        self.state = State.BROWSER_READY if success else State.BROWSER_ERROR
+        self.root.after(0, self._on_browser_ready, success)
 
-    def _on_browser_ready(self) -> None:
-        self._log("BROWSER", "Chrome launched successfully with remote debugging enabled.")
+    def _on_browser_ready(self, success: bool = True) -> None:
+        if success:
+            self._log("BROWSER", "Chrome is ready.")
+        else:
+            self._log("BROWSER", "Chrome failed to launch.", Severity.ERROR)
         self._update_ui()
 
     def _on_select_all(self) -> None:
@@ -212,32 +253,36 @@ class BadgerUI:
 
     def _on_run(self) -> None:
         selected = [t for t, v in zip(TASKS, self.task_vars, strict=False) if v.get()]
-        if not selected or not self.browser_running:
+        if not selected or self.state not in (State.BROWSER_READY, State.COMPLETE):
             return
         self.state = State.RUNNING
-        self.running = True
         self._update_ui()
-        self._log("RUN", f"Starting {len(selected)} task(s)...")
+        self._log("RUN", f"Starting {len(selected)} task(s)…")
         threading.Thread(target=self._run_tasks, args=(selected,), daemon=True).start()
 
     def _run_tasks(self, selected: list[Task]) -> None:
         def progress(msg: str) -> None:
             self.log_queue.put(("RUN", msg))
 
-        execute_tasks(selected, on_progress=progress, is_cancelled=lambda: not self.running)
-        if self.running:
-            self.log_queue.put(("RUN", "All tasks finished."))
-        self.running = False
-        self.root.after(0, self._on_run_complete)
+        try:
+            execute_tasks(
+                selected, on_progress=progress, is_cancelled=lambda: self.state is not State.RUNNING
+            )
+            if self.state is State.RUNNING:
+                self.log_queue.put(("RUN", "All tasks finished."))
+        except Exception as exc:  # noqa: BLE001
+            self.log_queue.put(("RUN", f"Unexpected error: {exc}", Severity.ERROR))
+        finally:
+            self.root.after(0, self._on_run_complete)
 
     def _on_run_complete(self) -> None:
-        self.state = State.COMPLETE
+        if self.state is State.RUNNING:
+            self.state = State.COMPLETE
         self._update_ui()
 
     def _on_stop(self) -> None:
-        self.running = False
-        self._log("RUN", "Stopped by user.", Severity.WARN)
         self.state = State.COMPLETE
+        self._log("RUN", "Stopped by user.", Severity.WARN)
         self._update_ui()
 
 
