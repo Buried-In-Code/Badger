@@ -32,8 +32,8 @@ class BadgerUI:
 
     def _setup_window(self) -> None:
         self.root.title(APP_NAME)
-        self.root.geometry("900x540")
-        self.root.minsize(800, 480)
+        self.root.geometry("1000x540")
+        self.root.minsize(1000, 540)
 
     def _build_ui(self) -> None:
         main = ttk.Frame(self.root, padding=8)
@@ -55,7 +55,7 @@ class BadgerUI:
         self._build_run_section(main)
 
     def _build_browser_section(self, parent: tk.Widget) -> None:
-        frame = ttk.LabelFrame(parent, text="Step 1  ·  Open Browser")
+        frame = ttk.LabelFrame(parent, text="Step 1  -  Open Browser")
         frame.pack(fill=tk.X)
 
         row = ttk.Frame(frame)
@@ -64,10 +64,10 @@ class BadgerUI:
         self.launch_btn = ttk.Button(row, text="Open Chrome", command=self._on_launch_browser)
         self.launch_btn.pack(side=tk.LEFT, padx=(0, 16))
 
-        self.browser_status_lbl = ttk.Label(row, text="● Not running")
+        self.browser_status_lbl = ttk.Label(row, text="Not running")
         self.browser_status_lbl.pack(side=tk.LEFT)
 
-        self.adv_btn = ttk.Button(row, text="Advanced ▾", command=self._toggle_advanced)
+        self.adv_btn = ttk.Button(row, text="Advanced", command=self._toggle_advanced)
         self.adv_btn.pack(side=tk.RIGHT)
 
         self._advanced_open = False
@@ -79,23 +79,18 @@ class BadgerUI:
             self._advanced_frame, from_=1024, to=65535, textvariable=self.port_var, width=7
         )
         self.port_entry.pack(side=tk.LEFT)
-        ttk.Label(
-            self._advanced_frame,
-            text="Only change this if port 9222 is already in use.",
-            foreground="grey",
-        ).pack(side=tk.LEFT, padx=8)
 
     def _toggle_advanced(self) -> None:
         self._advanced_open = not self._advanced_open
         if self._advanced_open:
             self._advanced_frame.pack(fill=tk.X, padx=6, pady=(0, 6))
-            self.adv_btn.configure(text="Advanced ▴")
+            self.adv_btn.configure(text="Advanced")
         else:
             self._advanced_frame.pack_forget()
-            self.adv_btn.configure(text="Advanced ▾")
+            self.adv_btn.configure(text="Advanced")
 
     def _build_task_section(self, parent: tk.Widget) -> None:
-        frame = ttk.LabelFrame(parent, text="Step 2  ·  Choose Tasks")
+        frame = ttk.LabelFrame(parent, text="Step 2  -  Choose Tasks")
         frame.pack(fill=tk.BOTH, expand=True)
 
         btn_row = ttk.Frame(frame)
@@ -129,16 +124,16 @@ class BadgerUI:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     def _build_run_section(self, parent: tk.Widget) -> None:
-        frame = ttk.LabelFrame(parent, text="Step 3  ·  Run")
+        frame = ttk.LabelFrame(parent, text="Step 3  -  Run")
         frame.pack(fill=tk.X, pady=(8, 0))
 
         row = ttk.Frame(frame)
         row.pack(fill=tk.X, padx=6, pady=6)
 
-        self.run_btn = ttk.Button(row, text="▶  Start", command=self._on_run)
+        self.run_btn = ttk.Button(row, text="Start", command=self._on_run)
         self.run_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        self.stop_btn = ttk.Button(row, text="■  Stop", command=self._on_stop)
+        self.stop_btn = ttk.Button(row, text="Stop", command=self._on_stop)
         self.stop_btn.pack(side=tk.LEFT)
 
         self.run_status_lbl = ttk.Label(row, text="")
@@ -152,13 +147,7 @@ class BadgerUI:
         container.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
 
         self.log_text = tk.Text(
-            container,
-            wrap=tk.WORD,
-            state=tk.DISABLED,
-            font=("Courier New", 9),
-            bg="#1e1e1e",
-            fg="#cccccc",
-            relief=tk.FLAT,
+            container, wrap=tk.WORD, state=tk.DISABLED, bg="#1e1e1e", fg="#cccccc", relief=tk.FLAT
         )
         scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=scrollbar.set)
@@ -182,13 +171,13 @@ class BadgerUI:
         self.port_entry.configure(state=tk.DISABLED if launch_locked else tk.NORMAL)
 
         if browser_up:
-            self.browser_status_lbl.configure(text="● Ready", foreground="#4caf50")
+            self.browser_status_lbl.configure(text="Ready", foreground="#4caf50")
         elif is_launching:
-            self.browser_status_lbl.configure(text="● Launching…", foreground="#ff9800")
+            self.browser_status_lbl.configure(text="Launching", foreground="#ff9800")
         elif self.state is State.BROWSER_ERROR:
-            self.browser_status_lbl.configure(text="● Failed — see log", foreground="#f44747")
+            self.browser_status_lbl.configure(text="Failed", foreground="#f44747")
         else:
-            self.browser_status_lbl.configure(text="● Not running", foreground="#9e9e9e")
+            self.browser_status_lbl.configure(text="Not running", foreground="#9e9e9e")
 
         task_state = tk.NORMAL if (browser_up and not is_running) else tk.DISABLED
         for cb in self.task_checkbuttons:
@@ -198,11 +187,11 @@ class BadgerUI:
 
         self.run_btn.configure(
             state=tk.NORMAL if (browser_up and any_selected and not is_running) else tk.DISABLED,
-            text="▶  Running…" if is_running else "▶  Start",
+            text="Running" if is_running else "Start",
         )
         self.stop_btn.configure(state=tk.NORMAL if is_running else tk.DISABLED)
         self.run_status_lbl.configure(
-            text={State.RUNNING: "Running…", State.COMPLETE: "✓  Complete"}.get(self.state, "")
+            text={State.RUNNING: "Running", State.COMPLETE: "Complete"}.get(self.state, "")
         )
 
     def _log(self, step: str, message: str, severity: Severity = Severity.INFO) -> None:
@@ -222,7 +211,7 @@ class BadgerUI:
         self.state = State.BROWSER_LAUNCHING
         self._update_ui()
         port = self.port_var.get()
-        self._log("BROWSER", f"Opening Chrome on port {port}…")
+        self._log("BROWSER", f"Opening Chrome on port {port}")
         threading.Thread(target=self._launch_browser_thread, args=(port,), daemon=True).start()
 
     def _launch_browser_thread(self, port: int) -> None:
@@ -257,7 +246,7 @@ class BadgerUI:
             return
         self.state = State.RUNNING
         self._update_ui()
-        self._log("RUN", f"Starting {len(selected)} task(s)…")
+        self._log("RUN", f"Starting {len(selected)} task(s)")
         threading.Thread(target=self._run_tasks, args=(selected,), daemon=True).start()
 
     def _run_tasks(self, selected: list[Task]) -> None:
