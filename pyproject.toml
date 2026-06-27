@@ -40,6 +40,9 @@ name = "Badger"
 readme = "README.md"
 requires-python = ">= 3.13"
 
+[project.scripts]
+badger = "badger.gui:main"
+
 [project.gui_scripts]
 badger = "badger.gui:main"
 
@@ -82,6 +85,7 @@ ignore = [
   "TCH",
   "TD",
   "TRY003",
+  "TRY300",
 ]
 select = ["ALL"]
 
