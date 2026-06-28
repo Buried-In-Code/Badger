@@ -9,7 +9,7 @@ def test_get_cache_root_non_windows(monkeypatch) -> None:  # noqa: ANN001
     result = get_cache_root()
     assert isinstance(result, Path)
     assert result.name == "badger"
-    assert str(result).endswith("/.cache/badger")
+    assert result.as_posix().endswith("/.cache/badger")
 
 
 def test_get_cache_root_custom_xdg(monkeypatch, tmp_path: Path) -> None:  # noqa: ANN001
@@ -31,7 +31,7 @@ def test_get_config_root_non_windows(monkeypatch) -> None:  # noqa: ANN001
     monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
     result = get_config_root()
     assert result.name == "badger"
-    assert str(result).endswith("/.config/badger")
+    assert result.as_posix().endswith("/.config/badger")
 
 
 def test_get_config_root_custom_xdg(monkeypatch, tmp_path: Path) -> None:  # noqa: ANN001
@@ -53,7 +53,7 @@ def test_get_data_root_non_windows(monkeypatch) -> None:  # noqa: ANN001
     monkeypatch.delenv("XDG_DATA_HOME", raising=False)
     result = get_data_root()
     assert result.name == "badger"
-    assert str(result).endswith("/.local/data/badger")
+    assert result.as_posix().endswith("/.local/data/badger")
 
 
 def test_get_data_root_custom_xdg(monkeypatch, tmp_path: Path) -> None:  # noqa: ANN001
@@ -75,7 +75,7 @@ def test_get_state_root_non_windows(monkeypatch) -> None:  # noqa: ANN001
     monkeypatch.delenv("XDG_STATE_HOME", raising=False)
     result = get_state_root()
     assert result.name == "badger"
-    assert str(result).endswith("/.local/state/badger")
+    assert result.as_posix().endswith("/.local/state/badger")
 
 
 def test_get_state_root_custom_xdg(monkeypatch, tmp_path: Path) -> None:  # noqa: ANN001
