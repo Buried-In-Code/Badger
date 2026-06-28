@@ -4,6 +4,7 @@ from enum import Enum, auto
 from queue import Queue
 from tkinter import ttk
 
+from badger import __version__
 from badger.core.browser import launch_chrome
 from badger.core.log import Level, Log, add_log, read_logs
 from badger.core.tasks import APP_NAME, TASKS, Task, execute_tasks
@@ -30,7 +31,7 @@ class BadgerUI:
         self.root.after(100, self._process_log_queue)
 
     def _setup_window(self) -> None:
-        self.root.title(APP_NAME)
+        self.root.title(f"{APP_NAME} v{__version__}")
         self.root.geometry("1000x540")
         self.root.minsize(1000, 540)
 

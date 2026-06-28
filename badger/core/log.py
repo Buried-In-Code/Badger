@@ -7,7 +7,7 @@ from enum import Enum
 
 from badger import get_state_root
 
-logfile = get_state_root() / "log.jsonl"
+logfile = get_state_root() / "logs.jsonl"
 
 
 class Level(Enum):
