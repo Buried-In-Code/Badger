@@ -12,7 +12,7 @@ dev = [
   "toml-sort >= 0.24.0",
   "ty >= 0.0.50",
 ]
-tests = [
+test = [
   "pytest >= 9.1.0",
   "pytest-cov >= 7.1.0",
 ]
@@ -29,7 +29,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "playwright >= 1.60.0"
+  "playwright >= 1.60.0",
 ]
 description = ""
 dynamic = ["version"]
@@ -40,10 +40,10 @@ name = "Badger"
 readme = "README.md"
 requires-python = ">= 3.13"
 
-[project.scripts]
+[project.gui_scripts]
 badger = "badger.gui:main"
 
-[project.gui_scripts]
+[project.scripts]
 badger = "badger.gui:main"
 
 [tool.coverage.report]

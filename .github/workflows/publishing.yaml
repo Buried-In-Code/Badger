@@ -34,8 +34,8 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-      - uses: pdm-project/setup-pdm@v4.5
+      - uses: astral-sh/setup-uv@v8.1.0
         with:
           python-version: ${{ env.PY_VERSION }}
       - name: Validate dist
-        run: pdm run --with twine twine check dist/*
+        run: uv run --with twine twine check dist/*
