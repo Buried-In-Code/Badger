@@ -1,0 +1,19 @@
+[versions]
+gson = "2.14.0"
+jspecify = "1.0.1"
+playwright = "1.62.0"
+shadow = "9.6.1"
+spotless = "8.10.0"
+versions = "0.61.0"
+
+[libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
+
+[bundles]
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+versions = { id = "io.github.ben-manes.versions", version.ref = "versions" }

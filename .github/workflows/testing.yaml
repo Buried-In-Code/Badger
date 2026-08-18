@@ -1,0 +1,47 @@
+name: Testing
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - docs/**
+      - README.md
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - docs/**
+      - README.md
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+permissions: {}
+
+jobs:
+  gradle-tests:
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version:
+          - 17
+          - 21
+          - 25
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: gradle
+      - name: Run Gradle tests
+        run: ./gradlew clean test

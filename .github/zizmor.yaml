@@ -1,0 +1,9 @@
+rules:
+  unpinned-uses:
+    ignore:
+      - linting.yaml
+      - testing.yaml
+  anonymous-definition:
+    ignore: []
+  undocumented-permissions:
+    ignore: []

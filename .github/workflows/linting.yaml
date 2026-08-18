@@ -1,0 +1,48 @@
+name: Linting
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+permissions: {}
+
+jobs:
+  spotless:
+    needs: []
+    permissions:
+      contents: read
+    
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: gradle
+      - name: Run Gradle tests
+        run: ./gradlew clean spotless
+
+  prek:
+    needs: []
+    permissions:
+      contents: read
+  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          python-version: 3.14
+      - name: Run prek
+        run: uv run --with prek prek run -a
