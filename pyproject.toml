@@ -12,6 +12,9 @@ dev = [
   "toml-sort >= 0.24.0",
   "ty >= 0.0.70",
 ]
+release = [
+  "pyinstaller >= 6.22.0",
+]
 test = [
   "pytest >= 9.1.0",
   "pytest-cov >= 7.1.0",
@@ -41,10 +44,10 @@ readme = "README.md"
 requires-python = ">= 3.13"
 
 [project.gui_scripts]
-badger = "badger.gui:main"
+badger = "badger.__main__:gui"
 
 [project.scripts]
-badger = "badger.gui:main"
+badger = "badger.__main__:gui"
 
 [tool.coverage.report]
 show_missing = true

@@ -36,7 +36,7 @@ repos:
       - id: ty
         entry: ty check .
         language: system
-        name: ruff check
+        name: ty check
         pass_filenames: false
         types:
           - python
@@ -48,6 +48,14 @@ repos:
       - id: check-docstring-first
       - id: debug-statements
       - id: forbid-submodules
+  - repo: "https://github.com/zizmorcore/zizmor-pre-commit"
+    rev: v1.29.0
+    hooks:
+      - id: zizmor
+        args:
+          - "--fix=all"
+          - "--no-progress"
+          - "--persona=auditor"
   - repo: builtin
     hooks:
       - id: check-added-large-files

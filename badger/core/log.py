@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-from badger import get_state_root
+from badger import get_state_home
 
-logfile = get_state_root() / "logs.jsonl"
+logfile = get_state_home() / "logs.jsonl"
 
 
 class Level(Enum):

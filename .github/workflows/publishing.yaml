@@ -1,9 +1,12 @@
 name: Publishing
-
 on: push
 
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
 env:
-  PY_VERSION: "3.14"
+  PY_VERSION: '3.14'
+permissions: {}
 
 jobs:
   build:
@@ -12,7 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: pdm-project/setup-pdm@v4.5
         with:
           python-version: ${{ env.PY_VERSION }}
@@ -39,3 +44,61 @@ jobs:
           python-version: ${{ env.PY_VERSION }}
       - name: Validate dist
         run: uv run --with twine twine check dist/*
+
+  build-binaries:
+    if: startsWith(github.ref, "refs/tags/")
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: standalone-linux
+            executable: badger
+            os: ubuntu-latest
+          - artifact: standalone-windows
+            executable: badger.exe
+            os: windows-latest
+
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pdm-project/setup-pdm@v4.5
+        with:
+          python-version: ${{ env.PY_VERSION }}
+      - name: Install project
+        run: pdm install --prod -G release
+      - name: Build executable
+        env:
+          OUTPUT_NAME: ${{ matrix.executable }}
+        run: pdm run pyinstaller --clean --noconfirm --onefile --windowed --name "$OUTPUT_NAME" badger/__main__.py
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          if-no-files-found: error
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.executable }}
+
+  release:
+    if: startsWith(github.ref, "refs/tags")
+    needs:
+      - build-binaries
+      - validate
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          merge-multiple: true
+          pattern: standalone-*
+          path: dist/
+      - name: Create release
+        env:
+          TAG_NAME: "v${{ github.ref_name }}"
+        run: |
+          gh release view "$TAG_NAME" > /dev/null 2>&1 || gh release create "$TAG_NAME" --generate-notes --verify-tag
+          gh release upload "$TAG_NAME" dist/* --clobber
