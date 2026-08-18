@@ -17,7 +17,7 @@ jobs:
     needs: []
     permissions:
       contents: read
-    
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -35,7 +35,7 @@ jobs:
     needs: []
     permissions:
       contents: read
-  
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1

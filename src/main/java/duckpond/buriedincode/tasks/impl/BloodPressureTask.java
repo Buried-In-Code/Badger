@@ -1,8 +1,8 @@
-package duckpond.buriedincode.badger.tasks.impl;
+package duckpond.buriedincode.tasks.impl;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
-import duckpond.buriedincode.badger.tasks.Task;
+import duckpond.buriedincode.tasks.Task;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NullMarked;
 

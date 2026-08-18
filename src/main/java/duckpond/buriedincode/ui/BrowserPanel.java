@@ -1,6 +1,6 @@
-package duckpond.buriedincode.badger.ui;
+package duckpond.buriedincode.ui;
 
-import duckpond.buriedincode.badger.browser.BrowserUtils;
+import duckpond.buriedincode.browser.BrowserUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;

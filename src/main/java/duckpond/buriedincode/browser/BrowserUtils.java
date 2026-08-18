@@ -1,12 +1,12 @@
-package duckpond.buriedincode.badger.browser;
+package duckpond.buriedincode.browser;
 
-import static duckpond.buriedincode.badger.Utils.PROJECT;
-import static duckpond.buriedincode.badger.Utils.getCacheHome;
-import static duckpond.buriedincode.badger.Utils.getStateHome;
+import static duckpond.buriedincode.Utils.PROJECT;
+import static duckpond.buriedincode.Utils.getCacheHome;
+import static duckpond.buriedincode.Utils.getStateHome;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Tracing;
-import duckpond.buriedincode.badger.logs.LogLevel;
+import duckpond.buriedincode.logs.LogLevel;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -40,8 +40,7 @@ public final class BrowserUtils {
   }
 
   public static boolean isBrowserRunning(int port) {
-    try {
-      var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(1)).build();
+    try (var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(1)).build()) {
       var request = HttpRequest
         .newBuilder()
         .uri(URI.create("http://localhost:%d/json/version".formatted(port)))
@@ -60,7 +59,7 @@ public final class BrowserUtils {
 
   public static LaunchResult launchEdge(BiConsumer<String, LogLevel> logMessage, int port, String browserPath) {
     var dataPath = getCacheHome().resolve("remote-debug-profile");
-    var edgePath = browserPath == null ? "" : browserPath.strip();
+    var edgePath = browserPath.strip();
     if (edgePath.isEmpty()) {
       edgePath = defaultBrowserPath();
     }
@@ -112,8 +111,9 @@ public final class BrowserUtils {
   }
 
   public static void withBrowser(int port, Consumer<Page> action) {
-    try (var playwright = Playwright.create()) {
-      var browser = playwright.chromium().connectOverCDP("http://localhost:%d".formatted(port));
+    try (var playwright = Playwright.create();
+        var browser = playwright.chromium().connectOverCDP("http://localhost:%d".formatted(port))
+    ) {
       var page = browser
         .contexts()
         .stream()

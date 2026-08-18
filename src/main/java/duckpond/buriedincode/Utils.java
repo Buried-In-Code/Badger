@@ -1,9 +1,13 @@
-package duckpond.buriedincode.badger;
+package duckpond.buriedincode;
 
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -30,8 +34,23 @@ public final class Utils {
     return home("state");
   }
 
+  public static String getText(Locator locator) {
+    return locator.innerText().strip();
+  }
+
+  public static List<Locator> iterTableRows(Page page, String tableId) {
+    var table = page.locator("table[id=\"%s\"]".formatted(tableId));
+    var rows = table.locator("tbody tr");
+    var cells = new ArrayList<Locator>();
+    var count = rows.count();
+    for (var index = 0; index < count; index++) {
+      cells.add(rows.nth(index).locator("td"));
+    }
+    return cells;
+  }
+
   private static Path home(String leaf) {
-    var folder = Path.of(System.getProperty("user.home"), "." + PROJECT, leaf);
+    var folder = Path.of(System.getProperty("user.home"), ".%s".formatted(PROJECT), leaf);
     try {
       Files.createDirectories(folder);
     } catch (IOException ioe) {

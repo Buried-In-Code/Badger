@@ -1,7 +1,7 @@
-package duckpond.buriedincode.badger.ui;
+package duckpond.buriedincode.ui;
 
-import duckpond.buriedincode.badger.logs.LogEntry;
-import duckpond.buriedincode.badger.logs.LogLevel;
+import duckpond.buriedincode.logs.LogEntry;
+import duckpond.buriedincode.logs.LogLevel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.time.format.DateTimeFormatter;
@@ -20,8 +20,8 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class LogPanel extends JPanel {
-  private static final Color TIMESTAMP_COLOUR = new Color(0x55, 0x55, 0x55);
-  private static final DateTimeFormatter TS_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+  private static final Color TIMESTAMP_COLOUR = new Color(0x75, 0x75, 0x75);
+  private static final DateTimeFormatter TS_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private final JTextPane textPane;
   private final List<LogEntry> entries = new ArrayList<>();
   private final Map<LogLevel, Color> colours = new EnumMap<>(LogLevel.class);
@@ -31,9 +31,9 @@ public final class LogPanel extends JPanel {
     super(new BorderLayout());
     setBorder(BorderFactory.createTitledBorder("Activity Log"));
 
-    colours.put(LogLevel.DEBUG, new Color(0x88, 0x88, 0x88));
-    colours.put(LogLevel.INFO, new Color(0x9c, 0xdc, 0xfe));
-    colours.put(LogLevel.WARN, new Color(0xdc, 0xdc, 0xaa));
+    colours.put(LogLevel.DEBUG, new Color(0x9c, 0xdc, 0xfe));
+    colours.put(LogLevel.INFO, new Color(0xcc, 0xcc, 0xcc));
+    colours.put(LogLevel.WARN, new Color(230, 230, 30));
     colours.put(LogLevel.ERROR, new Color(0xf4, 0x47, 0x47));
 
     textPane = new JTextPane();

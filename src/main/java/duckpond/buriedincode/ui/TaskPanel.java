@@ -1,6 +1,6 @@
-package duckpond.buriedincode.badger.ui;
+package duckpond.buriedincode.ui;
 
-import duckpond.buriedincode.badger.tasks.Task;
+import duckpond.buriedincode.tasks.Task;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;

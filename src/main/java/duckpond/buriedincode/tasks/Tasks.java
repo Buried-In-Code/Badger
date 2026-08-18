@@ -1,6 +1,6 @@
-package duckpond.buriedincode.badger.tasks;
+package duckpond.buriedincode.tasks;
 
-import duckpond.buriedincode.badger.tasks.impl.BloodPressureTask;
+import duckpond.buriedincode.tasks.impl.BloodPressureTask;
 import java.util.List;
 import org.jspecify.annotations.NullMarked;
 

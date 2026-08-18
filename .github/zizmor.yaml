@@ -4,6 +4,9 @@ rules:
       - linting.yaml
       - testing.yaml
   anonymous-definition:
-    ignore: []
+    ignore:
+      - 'linting.yaml:16'
+      - 'linting.yaml:34'
+      - 'testing.yaml:22'
   undocumented-permissions:
     ignore: []

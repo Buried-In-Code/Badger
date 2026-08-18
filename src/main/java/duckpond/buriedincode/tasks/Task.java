@@ -1,4 +1,4 @@
-package duckpond.buriedincode.badger.tasks;
+package duckpond.buriedincode.tasks;
 
 import com.microsoft.playwright.Page;
 import java.util.function.Consumer;

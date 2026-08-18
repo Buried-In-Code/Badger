@@ -1,18 +1,20 @@
-package duckpond.buriedincode.badger.ui;
+package duckpond.buriedincode.ui;
 
-import static duckpond.buriedincode.badger.Utils.PROJECT;
-import static duckpond.buriedincode.badger.Utils.VERSION;
-import duckpond.buriedincode.badger.browser.BrowserUtils;
-import duckpond.buriedincode.badger.logs.LogEntry;
-import duckpond.buriedincode.badger.logs.LogLevel;
-import duckpond.buriedincode.badger.logs.LogStore;
-import duckpond.buriedincode.badger.tasks.Task;
-import duckpond.buriedincode.badger.tasks.TaskResult;
-import duckpond.buriedincode.badger.tasks.TaskRunner;
-import duckpond.buriedincode.badger.tasks.Tasks;
+import static duckpond.buriedincode.Utils.PROJECT;
+import static duckpond.buriedincode.Utils.VERSION;
+import duckpond.buriedincode.browser.BrowserUtils;
+import duckpond.buriedincode.logs.LogEntry;
+import duckpond.buriedincode.logs.LogLevel;
+import duckpond.buriedincode.logs.LogStore;
+import duckpond.buriedincode.tasks.Task;
+import duckpond.buriedincode.tasks.TaskResult;
+import duckpond.buriedincode.tasks.TaskRunner;
+import duckpond.buriedincode.tasks.Tasks;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,12 +64,23 @@ public final class BadgerUI {
     browserPanel = new BrowserPanel(this::onLaunchBrowser, this::onPortChange, this::onToggleDebug);
     main.add(browserPanel, BorderLayout.NORTH);
 
-    var middle = new JPanel(new GridLayout(1, 2, 8, 0));
+    var middle = new JPanel(new GridBagLayout());
+    var gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weighty = 1.0;
+
+    gbc.weightx = 1.0;
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    gbc.insets = new Insets(0, 0, 0, 8);
     taskPanel = new TaskPanel(Tasks.ALL, this::updateUi);
-    middle.add(taskPanel);
+    middle.add(taskPanel, gbc);
 
     logPanel = new LogPanel();
-    middle.add(logPanel);
+    gbc.weightx = 9.0;
+    gbc.gridx = 1;
+    gbc.insets = new Insets(0, 0, 0, 0);
+    middle.add(logPanel, gbc);
     main.add(middle, BorderLayout.CENTER);
 
     runPanel = new RunPanel(this::onRun, this::onStop);
@@ -236,8 +249,8 @@ public final class BadgerUI {
 
   private void setupWindow() {
     frame.setTitle("%s v%s".formatted(PROJECT, VERSION));
-    frame.setSize(1000, 500);
-    frame.setMinimumSize(new Dimension(1000, 500));
+    frame.setSize(750, 500);
+    frame.setMinimumSize(new Dimension(750, 500));
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
 

@@ -1,7 +1,7 @@
-package duckpond.buriedincode.badger;
+package duckpond.buriedincode;
 
-import duckpond.buriedincode.badger.logs.LogStore;
-import duckpond.buriedincode.badger.ui.BadgerUI;
+import duckpond.buriedincode.logs.LogStore;
+import duckpond.buriedincode.ui.BadgerUI;
 import javax.swing.SwingUtilities;
 import org.jspecify.annotations.NullMarked;
 

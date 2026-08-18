@@ -1,4 +1,4 @@
-package duckpond.buriedincode.badger.browser;
+package duckpond.buriedincode.browser;
 
 import org.jspecify.annotations.NullMarked;
 

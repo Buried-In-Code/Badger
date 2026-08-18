@@ -16,7 +16,7 @@ updates:
     schedule:
       interval: daily
     groups:
-      java:
+      gradle:
         patterns:
           - "*"
     cooldown:

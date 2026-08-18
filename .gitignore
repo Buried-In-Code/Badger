@@ -7,7 +7,6 @@
 bin/
 build/
 jte-classes/
-logs/
 node_modules/
 
 ### Files ###

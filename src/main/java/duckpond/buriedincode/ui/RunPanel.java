@@ -1,4 +1,4 @@
-package duckpond.buriedincode.badger.ui;
+package duckpond.buriedincode.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;

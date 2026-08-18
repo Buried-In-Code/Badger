@@ -1,7 +1,7 @@
-package duckpond.buriedincode.badger.tasks;
+package duckpond.buriedincode.tasks;
 
-import static duckpond.buriedincode.badger.PageUtils.getText;
-import static duckpond.buriedincode.badger.PageUtils.iterTableRows;
+import static duckpond.buriedincode.Utils.getText;
+import static duckpond.buriedincode.Utils.iterTableRows;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import java.util.ArrayList;
@@ -13,8 +13,6 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public final class TaskRunner {
-  private static final String LIST_TABLE_ID = "ListGrid";
-
   private TaskRunner() {
   }
 
@@ -24,7 +22,8 @@ public final class TaskRunner {
       Consumer<String> log,
       BooleanSupplier isCancelled
   ) {
-    var entries = iterTableRows(listPage, LIST_TABLE_ID);
+    // TODO: Define table grid
+    var entries = iterTableRows(listPage, "ListGrid");
     var total = entries.size();
     log.accept("Found %s entries.".formatted(total));
 
@@ -45,7 +44,7 @@ public final class TaskRunner {
 
   private static Page openEntry(Page listPage, Locator entry) {
     var context = listPage.context();
-    // TODO: Define columm idx
+    // TODO: Define column idx
     var page = context.waitForPage(() -> entry.nth(0).locator("a").click());
     page.waitForLoadState();
     return page;
@@ -62,6 +61,7 @@ public final class TaskRunner {
   ) {
     Task task = null;
     try {
+      // TODO: Define column idx
       var type = getText(entry.nth(1));
       task = tasks
         .stream()
@@ -74,12 +74,8 @@ public final class TaskRunner {
       }
 
       log.accept(label + ": running " + task.getName());
-      var page = openEntry(listPage, entry);
-      var selectedTask = task;
-      try {
-        selectedTask.run(page, msg -> log.accept("%s: %s".formatted(label, msg)));
-      } finally {
-        page.close();
+      try (var page = openEntry(listPage, entry)) {
+        task.run(page, msg -> log.accept("%s: %s".formatted(label, msg)));
       }
     } catch (RuntimeException err) {
       var message = "%s: %s".formatted(err.getClass().getSimpleName(), err.getMessage());
