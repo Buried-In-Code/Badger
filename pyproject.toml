@@ -6,17 +6,17 @@ requires = ["hatchling"]
 dev = [
   "mdformat >= 1.0.0",
   "mdformat-gfm >= 1.0.0",
-  "mdformat-ruff >= 0.1.0",
-  "prek >= 0.4.0",
-  "ruff >= 0.16.0",
-  "toml-sort >= 0.24.0",
+  "mdformat-ruff >= 0.1.3",
+  "prek >= 0.4.13",
+  "ruff >= 0.16.2",
+  "toml-sort >= 0.24.4",
   "ty >= 0.0.70",
 ]
 release = [
   "pyinstaller >= 6.22.0; python_version < '3.16'",
 ]
 test = [
-  "pytest >= 9.1.0",
+  "pytest >= 9.1.1",
   "pytest-cov >= 7.1.0",
 ]
 
