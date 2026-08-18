@@ -70,7 +70,7 @@ jobs:
         with:
           python-version: ${{ env.PY_VERSION }}
       - name: Install project
-        run: pdm install --prod -G release
+        run: pdm install -G release
       - name: Build executable
         env:
           OUTPUT_NAME: ${{ matrix.executable }}
