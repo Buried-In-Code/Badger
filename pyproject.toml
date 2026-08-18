@@ -8,9 +8,9 @@ dev = [
   "mdformat-gfm >= 1.0.0",
   "mdformat-ruff >= 0.1.0",
   "prek >= 0.4.0",
-  "ruff >= 0.15.0",
+  "ruff >= 0.16.0",
   "toml-sort >= 0.24.0",
-  "ty >= 0.0.50",
+  "ty >= 0.0.70",
 ]
 test = [
   "pytest >= 9.1.0",
@@ -29,7 +29,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "playwright >= 1.60.0",
+  "playwright >= 1.62.0",
 ]
 description = ""
 dynamic = ["version"]
@@ -76,15 +76,15 @@ skip-magic-trailing-comma = true
 [tool.ruff.lint]
 ignore = [
   "COM812",
+  "CPY001",
   "D",
-  "DTZ",
-  "EM",
-  "FBT",
-  "FIX",
+  "EM101",
+  "EM102",
+  "FBT001",
+  "FBT002",
+  "PLR0913",
+  "PLR2004",
   "PLW2901",
-  "T201",
-  "TCH",
-  "TD",
   "TRY003",
   "TRY300",
 ]
