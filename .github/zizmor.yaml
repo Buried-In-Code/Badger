@@ -10,9 +10,9 @@ rules:
       - 'publishing.yaml:12'
       - 'publishing.yaml:31'
       - 'publishing.yaml:48'
-      - 'publishing.yaml:84'
+      - 'publishing.yaml:80'
       - 'testing.yaml:20'
       - 'testing.yaml:47'
   undocumented-permissions:
     ignore:
-      - 'publishing.yaml:90'
+      - 'publishing.yaml:86'
