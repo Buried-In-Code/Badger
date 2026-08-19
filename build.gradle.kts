@@ -106,6 +106,7 @@ tasks.withType<DependencyUpdatesTask> {
 tasks.register<Exec>("jpackageWindows") {
   dependsOn(tasks.shadowJar)
 
+  val jpackageVersion = project.version.toString().replace(Regex("^\\d{2}(\\d{2}\\..*)$"), "$1")
   val javaHome =
     javaToolchains
       .launcherFor {
@@ -136,7 +137,7 @@ tasks.register<Exec>("jpackageWindows") {
     "--name",
     project.name,
     "--app-version",
-    project.version,
+    jpackageVersion,
     "--input",
     inputDir.absolutePath,
     "--main-jar",
