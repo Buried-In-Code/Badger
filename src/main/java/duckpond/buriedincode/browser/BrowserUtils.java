@@ -22,6 +22,8 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class BrowserUtils {
+  private static final HttpClient CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(1)).build();
+
   private BrowserUtils() {
   }
 
@@ -40,14 +42,14 @@ public final class BrowserUtils {
   }
 
   public static boolean isBrowserRunning(int port) {
-    try (var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(1)).build()) {
+    try {
       var request = HttpRequest
         .newBuilder()
         .uri(URI.create("http://localhost:%d/json/version".formatted(port)))
         .timeout(Duration.ofSeconds(1))
         .GET()
         .build();
-      var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+      var response = CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
       return response.statusCode() >= 200 && response.statusCode() < 300;
     } catch (IOException | InterruptedException e) {
       if (e instanceof InterruptedException) {

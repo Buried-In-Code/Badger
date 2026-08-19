@@ -2,11 +2,16 @@ rules:
   unpinned-uses:
     ignore:
       - linting.yaml
+      - publishing.yaml
       - testing.yaml
   anonymous-definition:
     ignore:
-      - 'linting.yaml:16'
-      - 'linting.yaml:34'
+      - 'linting.yaml:18'
+      - 'linting.yaml:35'
+      - 'publishing.yaml:15'
+      - 'publishing.yaml:35'
+      - 'publishing.yaml:55'
       - 'testing.yaml:22'
   undocumented-permissions:
-    ignore: []
+    ignore:
+      - 'publishing.yaml:60'

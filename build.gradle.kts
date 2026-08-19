@@ -15,7 +15,6 @@ version = "2026.2.0"
 
 repositories {
   mavenLocal()
-  maven("https://codeberg.org/api/packages/buriedincode/maven")
   mavenCentral()
 }
 

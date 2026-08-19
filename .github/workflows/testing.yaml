@@ -3,12 +3,14 @@ on:
   pull_request:
     branches:
       - main
+      - java
     paths-ignore:
       - docs/**
       - README.md
   push:
     branches:
       - main
+      - java
     paths-ignore:
       - docs/**
       - README.md
@@ -38,10 +40,10 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v5.7.0
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
+          distribution: temurin
           cache: gradle
       - name: Run Gradle tests
         run: ./gradlew clean test
