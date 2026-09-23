@@ -4,7 +4,7 @@ jspecify = "1.0.1"
 playwright = "1.63.0"
 shadow = "9.6.1"
 spotless = "8.10.2"
-versions = "0.63.0"
+versions = "0.63.1"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
