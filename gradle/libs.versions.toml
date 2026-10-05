@@ -3,7 +3,7 @@ gson = "2.14.0"
 jspecify = "1.0.1"
 playwright = "1.63.0"
 shadow = "9.6.1"
-spotless = "8.10.2"
+spotless = "8.10.3"
 versions = "0.64.0"
 
 [libraries]
