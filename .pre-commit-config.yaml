@@ -18,7 +18,7 @@ repos:
           - mdformat-gfm
           - mdformat-ruff
   - repo: "https://github.com/zizmorcore/zizmor-pre-commit"
-    rev: v1.31.0
+    rev: v1.31.1
     hooks:
       - id: zizmor
         args:
