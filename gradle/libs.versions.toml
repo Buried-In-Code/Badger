@@ -1,7 +1,7 @@
 [versions]
 gson = "2.14.0"
 jspecify = "1.0.1"
-playwright = "1.63.0"
+playwright = "1.64.0"
 shadow = "9.6.1"
 spotless = "8.10.4"
 versions = "0.66.0"
